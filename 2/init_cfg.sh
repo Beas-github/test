@@ -52,7 +52,7 @@ swapoff -a
 
 echo "[TASK 11] Install Kubernetes components (kubeadm, kubelet and kubectl) - v$2"
 install -m 0755 -d /etc/apt/keyrings
-curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg >/dev/null 2>&1
+curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://dl.k8s.io/apt/doc/apt-key.gpg >/dev/null 2>&1
 curl -s https://dl.k8s.io/apt/doc/apt-key.gpg | apt-key add -
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
 apt-get update >/dev/null 2>&1
