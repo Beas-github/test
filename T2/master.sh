@@ -3,7 +3,7 @@
 echo ">>>> K8S Controlplane config Start <<<<"
 
 echo "[TASK 1] Initial Kubernetes - Pod CIDR 172.30.0.0/16 , API Server 192.168.10.10"
-kubeadm init --token 123456.1234567890123456 --token-ttl 0 --pod-network-cidr=172.16.0.0/16 --apiserver-advertise-address=192.168.10.10 >/dev/null 2>&1
+kubeadm init --token 123456.1234567890123456 --token-ttl 0 --pod-network-cidr=172.30.0.0/16 --apiserver-advertise-address=192.168.10.10 >/dev/null 2>&1
 
 echo "[TASK 2] Setting kube config file"
 mkdir -p $HOME/.kube
@@ -11,7 +11,6 @@ cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
 
 echo "[TASK 3] Install Flannel CNI"
-#kubectl apply -f https://raw.githubusercontent.com/gasida/KANS/main/kubevirt/kube-flannel-v0.17.0.yml >/dev/null 2>&1
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
 wget https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml  
 sed -i 's/cidr: 192\.168\.0\.0\/16/cidr: 172\.30\.0\.0\/16/g' custom-resources.yaml
