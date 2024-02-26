@@ -36,8 +36,8 @@ echo -e "nameserver 8.8.8.8" > /etc/resolvconf/resolv.conf.d/head
 resolvconf -u
 
 echo "[TASK 7] Setting Local DNS Using Hosts file"
-echo "192.168.10.10 k8s-m" >> /etc/hosts
-for (( i=1; i<=$1; i++  )); do echo "192.168.10.10$i k8s-w$i" >> /etc/hosts; done
+echo "192.168.56.200 k8s-m" >> /etc/hosts
+for (( i=1; i<=$1; i++  )); do echo "192.168.56.20$i k8s-w$i" >> /etc/hosts; done
 
 echo "[TASK 8] Install containerd.io"
 # Install Runtime - Containerd https://kubernetes.io/docs/setup/production-environment/container-runtimes/
@@ -57,8 +57,13 @@ EOF
 sysctl -p >/dev/null 2>&1
 sysctl --system >/dev/null 2>&1
 
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - 
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 apt-get update >/dev/null 2>&1
 apt-get install containerd.io -y >/dev/null 2>&1
@@ -76,8 +81,8 @@ swapoff -a
 echo "[TASK 11] Install Kubernetes components (kubeadm, kubelet and kubectl) - v$2"
 #curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg >/dev/null 2>&1
 #echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
-curl -fsSL https://dl.k8s.io/apt/doc/apt-key.gpg | sudo apt-key add -
-echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.27/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.27/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 apt-get update >/dev/null 2>&1
 apt-get install -y kubelet=$2-00 kubectl=$2-00 kubeadm=$2-00 >/dev/null 2>&1
 apt-mark hold kubelet kubeadm kubectl >/dev/null 2>&1
