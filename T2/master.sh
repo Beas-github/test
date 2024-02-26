@@ -53,7 +53,7 @@ echo "[TASK 10] Install Helm"
 curl -s https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash >/dev/null 2>&1
 
 echo "[TASK 11] Install Metrics server - v0.6.1"
-kubectl apply -f https://raw.githubusercontent.com/gasida/KANS/main/8/metrics-server.yaml >/dev/null 2>&1
+kubectl apply -f https://raw.githubusercontent.com/Beas-github/test/master/T2/metrics-server.yaml >/dev/null 2>&1
 
 echo "[TASK 12] Dynamically provisioning persistent local storage with Kubernetes - v0.0.22"
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml >/dev/null 2>&1
