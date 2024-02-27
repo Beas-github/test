@@ -11,7 +11,6 @@ cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
 
 echo "[TASK 3] Install cailco CNI"
-#kubectl apply -f https://raw.githubusercontent.com/gasida/KANS/main/kubevirt/kube-flannel-v0.17.0.yml >/dev/null 2>&1
 kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
 wget https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml  
 sed -i 's/cidr: 192\.168\.0\.0\/16/cidr: 172\.30\.0\.0\/16/g' custom-resources.yaml
@@ -20,8 +19,11 @@ kubectl create -f custom-resources.yaml
 echo "[TASK 5] Source the completion"
 # source bash-completion for kubectl kubeadm
 source <(kubectl completion bash)
+source <(kubeadm completion bash)
+
 ## Source the completion script in your ~/.bashrc file
 echo 'source <(kubectl completion bash)' >> /etc/profile
+echo 'source <(kubeadm completion bash)' >> /etc/profile
 
 echo "[TASK 6] Alias kubectl to k"
 echo 'alias k=kubectl' >> /etc/profile
