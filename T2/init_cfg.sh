@@ -23,7 +23,7 @@ systemctl stop apparmor && systemctl disable apparmor >/dev/null 2>&1
 
 echo "[TASK 5] Install Packages"
 apt update -qq >/dev/null 2>&1
-apt-get install prettyping sshpass bridge-utils net-tools jq tree resolvconf wireguard ngrep ipset iputils-arping ipvsadm vim -y -qq >/dev/null 2>&1
+apt-get install prettyping sshpass bridge-utils net-tools jq tree resolvconf wireguard ngrep ipset iputils-arping ipvsadm vim unzip -y -qq >/dev/null 2>&1
 # Install Batcat - https://github.com/sharkdp/bat
 apt-get install bat -y >/dev/null 2>&1
 echo 'alias cat=batcat' >> /etc/profile
