@@ -28,8 +28,8 @@ apt-get install prettyping sshpass bridge-utils net-tools jq tree resolvconf wir
 apt-get install bat -y >/dev/null 2>&1
 echo 'alias cat=batcat' >> /etc/profile
 # Install Exa - https://the.exa.website/
-apt-get install exa -y >/dev/null 2>&1
-echo 'alias ls=exa' >> /etc/profile
+#apt-get install exa -y >/dev/null 2>&1
+#echo 'alias ls=exa' >> /etc/profile
 # Install YAML Highlighter
 wget https://github.com/andreazorzetto/yh/releases/download/v0.4.0/yh-linux-amd64.zip
 unzip yh-linux-amd64.zip
