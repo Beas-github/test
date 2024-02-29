@@ -30,6 +30,10 @@ echo 'alias cat=batcat' >> /etc/profile
 # Install Exa - https://the.exa.website/
 apt-get install exa -y >/dev/null 2>&1
 echo 'alias ls=exa' >> /etc/profile
+# Install YAML Highlighter
+wget https://github.com/andreazorzetto/yh/releases/download/v0.4.0/yh-linux-amd64.zip
+unzip yh-linux-amd64.zip
+mv yh /usr/local/bin/
 
 echo "[TASK 6] Change DNS Server IP Address"
 echo -e "nameserver 8.8.8.8" > /etc/resolvconf/resolv.conf.d/head
