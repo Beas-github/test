@@ -73,7 +73,6 @@ echo 'alias k=kubectl' >> /etc/profile
 echo 'complete -F __start_kubectl k' >> /etc/profile
 # kubectl을 kubecolor로 대체하여 컬러 출력을 활성화.
 echo 'alias kubectl=kubecolor' >> /etc/profile
-echo 'compdef kubecolor=kubectl' >> /etc/profile
 
 # [TASK 10] Kubectx와 Kubens 설치
 echo "[TASK 10] Install Kubectx & Kubens"
