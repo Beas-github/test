@@ -4,13 +4,15 @@ echo ">>>> Initial Config Start <<<<"
 echo "[TASK 1] Setting SSH with Root"
 printf "qwe123\nqwe123\n" | passwd >/dev/null 2>&1
 sed -i "s/^#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
-sed -i "s/^PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
+if [ -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf ]; then
+    sed -i "s/^PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
+fi
 systemctl restart sshd  >/dev/null 2>&1
 
 echo "[TASK 2] Profile & Bashrc & Change Timezone"
 echo 'alias vi=vim' >> /etc/profile
 echo "sudo su -" >> .bashrc
-ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtimew
+ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
 echo "[TASK 3] Disable ufw & AppArmor"
 systemctl stop ufw && systemctl disable ufw >/dev/null 2>&1
@@ -44,12 +46,13 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 # enable br_filter for iptables 
 modprobe br_netfilter
 apt-get update >/dev/null 2>&1
-apt-get install containerd.io -y >/dev/null 2>&1
+apt-get install -y containerd.io >/dev/null 2>&1
 mkdir -p /etc/containerd
-containerd config default > /etc/containerd/config.toml
+containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
 
 echo "[TASK 8] Using the systemd cgroup driver"
 sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+systemctl restart containerd
 
 # avoid WARN&ERRO(default endpoints) when crictl run  
 cat <<EOF > /etc/crictl.yaml
@@ -65,6 +68,7 @@ swapoff -a
 
 echo "[TASK 10] Install Kubernetes components (kubeadm, kubelet and kubectl) - v$2"
 # add kubernetes repo
+sudo mkdir -p /etc/apt/keyrings
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v$2/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v$2/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
