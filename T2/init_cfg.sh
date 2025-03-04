@@ -40,33 +40,7 @@ echo "[TASK 6] Setting Local DNS Using Hosts file"
 echo "192.168.56.200 k8s-m" >> /etc/hosts
 for (( i=1; i<=$1; i++  )); do echo "192.168.56.20$i k8s-w$i" >> /etc/hosts; done
 
-echo "[TASK 7] Install containerd.io"
-# packets traversing the bridge are processed by iptables for filtering
-echo 1 > /proc/sys/net/ipv4/ip_forward
-# enable br_filter for iptables 
-modprobe br_netfilter
-apt-get update >/dev/null 2>&1
-apt-get install -y containerd.io >/dev/null 2>&1
-mkdir -p /etc/containerd
-containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
-
-echo "[TASK 8] Using the systemd cgroup driver"
-sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
-systemctl restart containerd
-
-# avoid WARN&ERRO(default endpoints) when crictl run  
-cat <<EOF > /etc/crictl.yaml
-runtime-endpoint: unix:///run/containerd/containerd.sock
-image-endpoint: unix:///run/containerd/containerd.sock
-EOF
-
-systemctl restart containerd && systemctl enable containerd
-systemctl enable --now kubelet
-
-echo "[TASK 9] Disable and turn off SWAP"
-swapoff -a
-
-echo "[TASK 10] Install Kubernetes components (kubeadm, kubelet and kubectl) - v$2"
+echo "[TASK 7] Install Kubernetes components (kubeadm, kubelet and kubectl) - v$2"
 # add kubernetes repo
 sudo mkdir -p /etc/apt/keyrings
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v$2/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
@@ -76,9 +50,35 @@ echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc >/dev/null 2>&1
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
+echo "[TASK 8] Install containerd.io"
+# packets traversing the bridge are processed by iptables for filtering
+echo 1 > /proc/sys/net/ipv4/ip_forward
+# enable br_filter for iptables 
+modprobe br_netfilter
+
 # Update the apt package index, install kubelet, kubeadm and kubectl, and pin their version
 apt update -qq >/dev/null 2>&1
-apt-get install -y kubelet kubectl kubeadm >/dev/null 2>&1 && apt-mark hold kubelet kubeadm kubectl >/dev/null 2>&1
+apt-get install -y kubelet kubectl kubeadm containerd.io >/dev/null 2>&1 && apt-mark hold kubelet kubeadm kubectl >/dev/null 2>&1
 systemctl enable kubelet && systemctl start kubelet
+
+mkdir -p /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
+
+echo "[TASK 9] Using the systemd cgroup driver"
+sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+systemctl restart containerd
+
+# avoid WARN&ERRO(default endpoints) when crictl run  
+cat <<EOF > /etc/crictl.yaml
+runtime-endpoint: unix:///run/containerd/containerd.sock
+image-endpoint: unix:///run/containerd/containerd.sock
+EOF
+
+# ready to install for k8s 
+systemctl restart containerd && systemctl enable containerd
+systemctl enable --now kubelet
+
+echo "[TASK 10] Disable and turn off SWAP"
+swapoff -a
 
 echo ">>>> Initial Config End <<<<"
