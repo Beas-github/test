@@ -2,8 +2,8 @@
 
 echo ">>>> K8S Controlplane config Start <<<<"
 
-echo "[TASK 1] Initial Kubernetes - Pod CIDR 172.30.0.0/16 , API Server 192.168.56.200"
-kubeadm init --token 123456.1234567890123456 --token-ttl 0 --pod-network-cidr=172.30.0.0/16 --apiserver-advertise-address=192.168.56.200 >/dev/null 2>&1
+echo "[TASK 1] Initial Kubernetes - Pod CIDR 172.30.0.0/16 , Service CIDR 10.200.1.0/24 , API Server 192.168.56.200"
+kubeadm init --token 123456.1234567890123456 --token-ttl 0 --pod-network-cidr=172.30.0.0/16 --apiserver-advertise-address=192.168.56.200 --service-cidr=10.200.1.0/24 --cri-socket=unix:///run/containerd/containerd.sock>/dev/null 2>&1
 
 echo "[TASK 2] Setting kube config file"
 mkdir -p $HOME/.kube
@@ -11,8 +11,8 @@ cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
 
 echo "[TASK 3] Install cailco CNI"
-kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/tigera-operator.yaml
-wget https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/custom-resources.yaml  
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/tigera-operator.yaml
+wget https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/custom-resources.yaml  
 sed -i 's/cidr: 192\.168\.0\.0\/16/cidr: 172\.30\.0\.0\/16/g' custom-resources.yaml
 kubectl create -f custom-resources.yaml
 
@@ -54,8 +54,8 @@ apt install kubetail etcd-client -y -qq >/dev/null 2>&1
 echo "[TASK 10] Install Helm"
 curl -s https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash >/dev/null 2>&1
 
-echo "[TASK 11] Install Metrics server - v0.6.1"
-kubectl apply -f https://raw.githubusercontent.com/Beas-github/test/master/T2/metrics-server.yaml >/dev/null 2>&1
+echo "[TASK 11] Install Metrics server - v0.7"
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml >/dev/null 2>&1
 
 echo "[TASK 12] Dynamically provisioning persistent local storage with Kubernetes - v0.0.22"
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml >/dev/null 2>&1
