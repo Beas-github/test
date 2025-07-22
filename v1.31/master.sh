@@ -55,8 +55,9 @@ echo "[TASK 10] Install Helm"
 curl -s https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash >/dev/null 2>&1
 
 echo "[TASK 11] Install Metrics server - v0.7"
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml >/dev/null 2>&1
-kubectl -n kube-system patch deployment metrics-server -p '{"spec":{"template":{"spec":{"containers":[{"name":"metrics-server","args":["--kubelet-insecure-tls"]}]}}}}' >/dev/null 2>&1
+curl -LO https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+sed -i '/--metric-resolution=15s/a \ \ \ \ \ \ \ \ - --kubelet-insecure-tls' components.yaml
+kubectl apply -f components.yaml
 
 echo "[TASK 12] Dynamically provisioning persistent local storage with Kubernetes - v0.0.22"
 kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml >/dev/null 2>&1
